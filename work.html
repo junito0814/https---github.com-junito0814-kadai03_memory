@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <audio src="ナイフを投げる (1).mp3"></audio>
+    <title>Document</title>
+</head>
+<body>
+    <h1>登録</h1>
+
+    <div class="form">
+        <div>
+            <label>行き先</label>
+            <input type="text" id="place" placeholder="東京、大阪など">
+        </div>
+
+        <div>
+            <label>日付</label>
+            <input type="date" id="data">
+        </div>
+
+        <div>
+            <label>費用（円）</label>
+            <input type="number" id="cost" placeholder="123456789">
+        </div>
+
+        <div id="star">
+            <label>評価</label><br>
+           <span class="star">⭐️</span>
+           <span class="star">⭐️</span>
+           <span class="star">⭐️</span>
+           <span class="star">⭐️</span>
+           <span class="star">⭐️</span>
+        </div>
+
+        <div>
+            <label>メモ</label><br>
+            <textarea name="" id="memo"></textarea>
+        </div>
+    </div>
+        <div>
+            <button id="add">記録を追加</button>
+            <button id="history">記録閲覧へ</button>
+        </div>
+    
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        let rating = 0;
+
+    $(".star").on('click', function () {
+        rating = $(".star").index(this) + 1;
+        updateStars();
+    });
+
+    function updateStars() {
+        $(".star").each(function (index) {
+            if (index < rating) {
+                $(this).css('opacity', '1');   
+            } else {
+                $(this).css('opacity', '0.3'); 
+            }
+        });
+    }
+
+    function loadTrips() {
+        try {
+            return JSON.parse(localStorage.getItem("trips")) || [];
+        } catch {
+            return [];
+        }
+    }
+
+        function saveTrips(trips) {
+            localStorage.setItem("trips", JSON.stringify(trips));
+        }
+
+        $("#add").on('click',function(){
+            const place = $("#place").val();   
+            const data = $("#data").val();
+            const cost = $("#cost").val();
+            const memo = $("#memo").val();
+            sound.play();
+
+            const trips = loadTrips(); // 既存の配列を読み込む
+            trips.push({               // 新しい1件を末尾に追加
+                place: place,
+                data: data,
+                cost: parseInt(cost) || 0,
+                star: rating,
+                memo: memo
+            });
+            saveTrips(trips);         
+
+
+            let starsText = '';
+            for (let i = 0; i < 5; i++) {
+            starsText += i < rating ? '⭐️' : '☆';
+            }
+
+            $("#place").val("");
+            $("#data").val("");
+            $("#cost").val("");
+            rating = 0;
+            updateStars();
+            $("#memo").val("");
+        });
+
+
+
+    $("#history").on('click', function () {
+        window.location.href = "summary.html";
+    });
+
+    </script>
+</body>
+</html>

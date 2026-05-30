@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <title>Document</title>
+</head>
+<body>
+    <h1>記録</h1>
+
+    <div class="summary">
+        <div id="totalMemory">記録数</div>
+        <div id="totalCost">合計費用</div>
+        <div id="averageCost">平均費用</div>
+        <div id="average">評価平均</div>
+    </div>
+
+    <button id="clear">記録を削除</button>
+    <button id="back">登録ページへ戻る</button>
+    
+    <div id="tripList"></div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+
+    function loadTrips() {
+            try {
+                return JSON.parse(localStorage.getItem("trips")) || [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveTrips(trips) {
+                localStorage.setItem("trips", JSON.stringify(trips));
+            }
+
+
+    $("#clear").on('click', function () {
+        saveTrips([]); 
+        showHistory();
+    });
+
+    function showHistory() {
+        const trips = loadTrips(); 
+
+        $("#totalMemory").html(`<span class='title'>記録数<br></span><span>${trips.length}</span>`);
+
+        const totalCost = trips.reduce(function (a, t) { return a + t.cost; }, 0);
+        $("#totalCost").html(`<span class='title'>合計費用 <br>¥</span> <span>${totalCost.toLocaleString()}</span>`);
+
+        const averageCost = trips.length
+            ? Math.floor(totalCost / trips.length)
+            : 0;
+
+        $("#averageCost").html(`<span class='title'>平均費用 <br> ¥ </span> <span> ${averageCost.toLocaleString()}`);
+
+        const rated = trips.filter(function (t) { return t.star > 0; });
+        const avgRating = rated.length
+            ? (rated.reduce(function (a, t) { return a + t.star; }, 0) / 
+            rated.length).toFixed(1)
+            : '-';
+        $("#average").html(`<span class='title'>評価平均 <br> </span> <span>${avgRating}</span>`);
+
+        // 全件を一覧表示
+        const list = $("#tripList");
+        list.empty();
+
+
+        trips.forEach(function (t) {
+
+            let stars = "";
+
+            for (let i = 0; i < t.star; i++) {
+                stars += "⭐️";
+            }
+
+            list.append(`
+        <div class="trip">
+            <h3>${t.place}</h3>
+            <p>日付：${t.data}</p>
+            <p>費用：¥${t.cost}</p>
+            <p>評価：${stars}</p>
+            <p>${t.memo}</p>
+        </div>
+        `);
+
+        });        
+    }
+    showHistory();
+
+    $("#back").on('click', function () {
+        window.location.href = "work.html";
+    });
+</script>
+</body>
+</html>
